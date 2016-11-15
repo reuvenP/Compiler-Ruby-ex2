@@ -5,6 +5,7 @@ def translate_file(vm_path)
   end
   lines = IO.readlines(vm_path)
   output = ''
+  file_name = vm_path.split('\\').last[0..-3]
   for line in lines
     line = line.split
     case line[0]
@@ -27,9 +28,13 @@ def translate_file(vm_path)
       when 'not'
         output << f_not
       when 'push'
-        output << push(line[1], line[2], vm_path)
+        output << push(line[1], line[2], file_name)
       when 'pop'
-        output << pop(line[1], line[2], vm_path)
+        output << pop(line[1], line[2], file_name)
+      when 'label'
+        output << label(line[1], file_name)
+      when 'goto'
+        output << goto(line[1], file_name)
     end
   end
   return output
@@ -330,15 +335,15 @@ def pop_pointer(index)
   output << "M=D\n" #RAM[THIS/THAT] = top of stack
 end
 
-def push_static(index, path)
-  output = '@' << path.split('\\').last[0..-3] << index << "\n"
+def push_static(index, file_name)
+  output = '@' << file_name << index << "\n"
   output << "D=M\n"
   output << push_from_D
 end
 
-def pop_static(index, path)
+def pop_static(index, file_name)
   output = pop_to_D
-  output << '@' << path.split('\\').last[0..-3] << index << "\n"
+  output << '@' << file_name << index << "\n"
   output << "M=D\n"
 end
 
@@ -365,7 +370,7 @@ def translate_folder(folder_path)
   end
 end
 
-translate_folder(ARGV[0])
+
 
 #-------------------------------------------------------
 
@@ -375,12 +380,13 @@ def init
   output = ''
 end
 
-def label
-  output = ''
+def label(func_name, file_name)
+  output = '(' << file_name << func_name << ")\n"
 end
 
-def goto
-  output = ''
+def goto(func_name, file_name)
+  output = '@' << file_name << func_name << "\n"
+  output << "0;JEQ\n"
 end
 
 def if_goto
@@ -399,3 +405,4 @@ def function
   output = ''
 end
 
+translate_folder(ARGV[0])
