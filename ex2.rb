@@ -35,6 +35,8 @@ def translate_file(vm_path)
         output << label(line[1], file_name)
       when 'goto'
         output << goto(line[1], file_name)
+      when 'if-goto'
+        output << if_goto(line[1], file_name)
     end
   end
   return output
@@ -389,8 +391,10 @@ def goto(func_name, file_name)
   output << "0;JEQ\n"
 end
 
-def if_goto
-  output = ''
+def if_goto(func_name, file_name)
+  output = pop_to_D
+  output << '@' << file_name << func_name << "\n"
+  output << "D;JNE\n"
 end
 
 def call
