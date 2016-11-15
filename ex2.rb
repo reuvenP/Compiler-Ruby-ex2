@@ -4,7 +4,7 @@ def translate_file(vm_path)
     return 'VM File does not exists!'
   end
   lines = IO.readlines(vm_path)
-  output = ''
+  output = init
   file_name = vm_path.split('\\').last[0..-3]
   for line in lines
     line = line.split
@@ -379,7 +379,11 @@ end
 # Start of level #2
 
 def init
-  output = ''
+  output = "// Initialize the SP to 256\n"
+  output << "@256\n"
+  output << "D=A\n"
+  output << "@SP\n"
+  output << "M=D\n"
 end
 
 def label(func_name, file_name)
