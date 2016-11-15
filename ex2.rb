@@ -41,34 +41,29 @@ def pop_to_D
   output << "A=M\n" #point to the new SP
   output << "D=M\n" #pop the previous variable to D register
   output << "A=A-1\n" #decrease SP by 1
-  return output
 end
 
 def pre_unary
   output = "@SP\n" #get SP into A
   output << "A=M-1\n"
-  return output
 end
 
 def add
   output = "\n//add\n"
   output << pop_to_D
   output << "M=M+D\n" #insert into stack top D + current stack top
-  return output
 end
 
 def sub
   output = "\n//sub\n"
   output << pop_to_D
   output << "M=M-D\n" #insert into stack top D - current stack top
-  return output
 end
 
 def neg
   output = "\n//neg\n"
   output << pre_unary
   output << "M=-M\n" #update stack top to it's negative
-  return output
 end
 
 def eq
@@ -89,7 +84,6 @@ def eq
   output << "M=-1\n"
   output << '(END' << $label_counter.to_s << ")\n"
   $label_counter = $label_counter + 1
-  return output
 end
 
 def gt
@@ -110,7 +104,6 @@ def gt
   output << "M=-1\n"
   output << '(END' << $label_counter.to_s << ")\n"
   $label_counter = $label_counter + 1
-  return output
 end
 
 def lt
@@ -131,28 +124,24 @@ def lt
   output << "M=-1\n"
   output << '(END' << $label_counter.to_s << ")\n"
   $label_counter = $label_counter + 1
-  return output
 end
 
 def f_and
   output = "\n//f_and\n"
   output << pop_to_D
   output << "M=M&D\n"
-  return output
 end
 
 def f_or
   output = "\n//f_or\n"
   output << pop_to_D
   output << "M=M|D\n"
-  return output
 end
 
 def f_not
   output = "\n//f_not\n"
   output << pre_unary
   output << "M=!M\n"
-  return output
 end
 
 def push(segment, index, path)
@@ -177,7 +166,6 @@ def push(segment, index, path)
     when 'pointer'
       output << push_pointer(index)
   end
-  return output
 end
 
 def pop(segment, index, path)
@@ -201,14 +189,12 @@ def pop(segment, index, path)
     when 'pointer'
       output << pop_pointer(index)
   end
-  return output
 end
 
 def push_constant(index)
   output = '@' << index << "\n"
   output << "D=A\n"
   output << push_from_D
-  return output
 end
 
 def push_local(index)
@@ -218,7 +204,6 @@ def push_local(index)
   output << "A=D+A\n" #A = RAM[1] + index
   output << "D=M\n" #D = RAM[RAM[1] + index]
   output << push_from_D
-  return output
 end
 
 def pop_local(index)
@@ -232,7 +217,6 @@ def pop_local(index)
   output << "@13\n"
   output << "A=M\n" #A = RAM[1] + index
   output << "M=D\n" #RAM[RAM[1] + index] = top of stack
-  return output
 end
 
 def push_argument(index)
@@ -242,7 +226,6 @@ def push_argument(index)
   output << "A=D+A\n" #A = RAM[2] + index
   output << "D=M\n" #D = RAM[RAM[2] + index]
   output << push_from_D
-  return output
 end
 
 def pop_argument(index)
@@ -256,7 +239,6 @@ def pop_argument(index)
   output << "@13\n"
   output << "A=M\n" #A = RAM[2] + index
   output << "M=D\n" #RAM[RAM[2] + index] = top of stack
-  return output
 end
 
 def push_this(index)
@@ -266,7 +248,6 @@ def push_this(index)
   output << "A=D+A\n" #A = RAM[3] + index
   output << "D=M\n" #D = RAM[RAM[3] + index]
   output << push_from_D
-  return output
 end
 
 def pop_this(index)
@@ -280,7 +261,6 @@ def pop_this(index)
   output << "@13\n"
   output << "A=M\n" #A = RAM[3] + index
   output << "M=D\n" #RAM[RAM[3] + index] = top of stack
-  return output
 end
 
 def push_that(index)
@@ -290,7 +270,6 @@ def push_that(index)
   output << "A=D+A\n" #A = RAM[4] + index
   output << "D=M\n" #D = RAM[RAM[4] + index]
   output << push_from_D
-  return output
 end
 
 def pop_that(index)
@@ -304,7 +283,6 @@ def pop_that(index)
   output << "@13\n"
   output << "A=M\n" #A = RAM[4] + index
   output << "M=D\n" #RAM[RAM[4] + index] = top of stack
-  return output
 end
 
 def push_temp(index)
@@ -314,7 +292,6 @@ def push_temp(index)
   output << "A=A+D\n" #A = index + 5
   output << "D=M\n" #D = RAM[index + 5]
   output << push_from_D
-  return output
 end
 
 def pop_temp(index)
@@ -328,7 +305,6 @@ def pop_temp(index)
   output << "@13\n"
   output << "A=M\n" #A = index + 5
   output << "M=D\n" #RAM[index + 5] = top of stack
-  return output
 end
 
 def push_pointer(index)
@@ -341,7 +317,6 @@ def push_pointer(index)
   end
   output << "D=M\n" #D = RAM[THIS/THAT]
   output << push_from_D
-  return output
 end
 
 def pop_pointer(index)
@@ -359,14 +334,12 @@ def push_static(index, path)
   output = '@' << path.split('\\').last[0..-3] << index << "\n"
   output << "D=M\n"
   output << push_from_D
-  return output
 end
 
 def pop_static(index, path)
   output = pop_to_D
   output << '@' << path.split('\\').last[0..-3] << index << "\n"
   output << "M=D\n"
-  return output
 end
 
 def push_from_D
@@ -397,4 +370,32 @@ translate_folder(ARGV[0])
 #-------------------------------------------------------
 
 # Start of level #2
+
+def init
+  output = ''
+end
+
+def label
+  output = ''
+end
+
+def goto
+  output = ''
+end
+
+def if_goto
+  output = ''
+end
+
+def call
+  output = ''
+end
+
+def f_return
+  output = ''
+end
+
+def function
+  output = ''
+end
 
