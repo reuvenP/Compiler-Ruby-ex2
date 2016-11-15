@@ -377,6 +377,7 @@ end
 #-------------------------------------------------------
 
 # Start of level #2
+# There is a minor change in level #1, basically Ruby syntax
 
 def init
   output = "// Initialize the SP to 256\n"
