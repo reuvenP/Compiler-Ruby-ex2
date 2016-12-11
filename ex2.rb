@@ -4,7 +4,7 @@ def translate_file(vm_path)
     return 'VM File does not exists!'
   end
   lines = IO.readlines(vm_path)
-  output = init
+  output = ''
   file_name = vm_path.split('\\').last[0..-3]
   for line in lines
     line = line.split
@@ -37,6 +37,12 @@ def translate_file(vm_path)
         output << goto(line[1], file_name)
       when 'if-goto'
         output << if_goto(line[1], file_name)
+      when 'function'
+        output << f_function(line[1], line[2])
+      when 'call'
+        output << f_call(line[1], line[2])
+      when 'return'
+        output << f_return
     end
   end
   return output
@@ -402,16 +408,68 @@ def if_goto(func_name, file_name)
   output << "D;JNE\n"
 end
 
-def call
-  output = ''
+def f_call(func_name, n_args)
+  output = "//function call\n"
+  output << '@' + func_name + "_return_address\n"
+  output << "D=A\n"
+  output << push_from_D # push return address
+  output << "@LCL\n"
+  output << "D=M\n"
+  output << push_from_D # push LCL
+  output << "@ARG\n"
+  output << "D=M\n"
+  output << push_from_D # push ARG
+  output << "@THIS\n"
+  output << "D=M\n"
+  output << push_from_D # push THIS
+  output << "@THAT\n"
+  output << "D=M\n"
+  output << push_from_D # push THAT
+  output << '@' + n_args.to_s + "\n"
+  output << "D=A\n"
+  output << "@SP\n"
+  output << "D=D-A\n" # D = SP - N
+  output << "@5\n"
+  output << "D=D-A\n" # D = SP - N - 5
+  output << "@ARG\n"
+  output << "M=D\n" # ARG = SP - N - 5
+  output << "@SP\n"
+  output << "D=M\n"
+  output << "@LCL\n"
+  output << "M=D\n" # LCL = SP
+  output << '@' + func_name + "\n"
+  output << "0;JEQ\n" # goto f
+  output << '(' + func_name + "_return_address)\n"
 end
 
 def f_return
-  output = ''
+  output = "//return\n"
+  output << "@LCL\n"
+  output << "D=M\n"
+  output << "@R14\n"
+  output << "M=D\n" # R14(frame) = LCL
+  #TODO: finish return
+  #TODO: check init
+  #TODO: check order
 end
 
-def function
-  output = ''
+def f_function(func_name, n_local_vars)
+  output = "//function declaration\n"
+  output << '(' << func_name << ")\n" # label for start function init
+  output << '@' + n_local_vars.to_s + "\n"
+  output << "D=A\n" # now D holds num of locals
+  output << '(' + func_name + "_init)\n" # label for start init
+  output << '@' + func_name + "body\n"
+  output << "D;JEQ\n" # if counter = 0 - go to function body
+  output << "@SP\n"
+  output << "A=M\n"
+  output << "M=0\n"
+  output << "@SP\n"
+  output << "M=M+1\n"
+  output << "D=D-1\n" # decrease counter by 1
+  output << '@' + func_name + "_init\n"
+  output << "0;JEQ\n"
+  output << '(' + func_name + "_body)\n"
 end
 
 translate_folder(ARGV[0])
