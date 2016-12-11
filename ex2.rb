@@ -211,7 +211,7 @@ def push_constant(index)
 end
 
 def push_local(index)
-  output = "@1\n" #LCL = 1
+  output = "@LCL\n"
   output << "D=M\n" #D = RAM[1]
   output << '@' << index << "\n" #A = index
   output << "A=D+A\n" #A = RAM[1] + index
@@ -220,20 +220,20 @@ def push_local(index)
 end
 
 def pop_local(index)
-  output = "@1\n" #LCL = 1
+  output = "@LCL\n"
   output << "D=M\n" #D = RAM[1]
   output << '@' << index << "\n" #A = index
   output << "D=D+A\n" #D = RAM[1] + index
-  output << "@13\n" #temp register
+  output << "@R13\n" #temp register
   output << "M=D\n" #reg13 = RAM[1] + index
   output << pop_to_D #D = top of stack
-  output << "@13\n"
+  output << "@R13\n"
   output << "A=M\n" #A = RAM[1] + index
   output << "M=D\n" #RAM[RAM[1] + index] = top of stack
 end
 
 def push_argument(index)
-  output = "@2\n" #ARG = 2
+  output = "@ARG\n"
   output << "D=M\n" #D = RAM[2]
   output << '@' << index << "\n" #A = index
   output << "A=D+A\n" #A = RAM[2] + index
@@ -242,20 +242,20 @@ def push_argument(index)
 end
 
 def pop_argument(index)
-  output = "@2\n" #ARG = 2
+  output = "@ARG\n"
   output << "D=M\n" #D = RAM[2]
   output << '@' << index << "\n" #A = index
   output << "D=D+A\n" #D = RAM[2] + index
-  output << "@13\n" #temp register
+  output << "@R13\n" #temp register
   output << "M=D\n" #reg13 = RAM[2] + index
   output << pop_to_D #D = top of stack
-  output << "@13\n"
+  output << "@R13\n"
   output << "A=M\n" #A = RAM[2] + index
   output << "M=D\n" #RAM[RAM[2] + index] = top of stack
 end
 
 def push_this(index)
-  output = "@3\n" #THIS = 3
+  output = "@THIS\n"
   output << "D=M\n" #D = RAM[3]
   output << '@' << index << "\n" #A = index
   output << "A=D+A\n" #A = RAM[3] + index
@@ -264,20 +264,20 @@ def push_this(index)
 end
 
 def pop_this(index)
-  output = "@3\n" #THIS = 3
+  output = "@THIS\n"
   output << "D=M\n" #D = RAM[3]
   output << '@' << index << "\n" #A = index
   output << "D=D+A\n" #D = RAM[3] + index
-  output << "@13\n" #temp register
+  output << "@R13\n" #temp register
   output << "M=D\n" #reg13 = RAM[3] + index
   output << pop_to_D #D = top of stack
-  output << "@13\n"
+  output << "@R13\n"
   output << "A=M\n" #A = RAM[3] + index
   output << "M=D\n" #RAM[RAM[3] + index] = top of stack
 end
 
 def push_that(index)
-  output = "@4\n" #THAT = 4
+  output = "@THAT\n"
   output << "D=M\n" #D = RAM[4]
   output << '@' << index << "\n" #A = index
   output << "A=D+A\n" #A = RAM[4] + index
@@ -286,14 +286,14 @@ def push_that(index)
 end
 
 def pop_that(index)
-  output = "@4\n" #THAT = 4
+  output = "@THAT\n"
   output << "D=M\n" #D = RAM[4]
   output << '@' << index << "\n" #A = index
   output << "D=D+A\n" #D = RAM[4] + index
-  output << "@13\n" #temp register
+  output << "@R13\n" #temp register
   output << "M=D\n" #reg13 = RAM[4] + index
   output << pop_to_D #D = top of stack
-  output << "@13\n"
+  output << "@R13\n"
   output << "A=M\n" #A = RAM[4] + index
   output << "M=D\n" #RAM[RAM[4] + index] = top of stack
 end
@@ -312,10 +312,10 @@ def pop_temp(index)
   output << "D=A\n" #D = 5
   output << '@' << index << "\n" #A = index
   output << "D=A+D\n" #D = index + 5
-  output << "@13\n"
+  output << "@R13\n"
   output << "M=D\n" #reg13 = index + 5
   output << pop_to_D #D = top of stack
-  output << "@13\n"
+  output << "@R13\n"
   output << "A=M\n" #A = index + 5
   output << "M=D\n" #RAM[index + 5] = top of stack
 end
@@ -324,9 +324,9 @@ def push_pointer(index)
   output = ''
   case index
     when '0'
-      output << "@3\n" #THIS
+      output << "@THIS\n"
     when '1'
-      output << "@4\n" #THAT
+      output << "@THAT\n"
   end
   output << "D=M\n" #D = RAM[THIS/THAT]
   output << push_from_D
@@ -336,9 +336,9 @@ def pop_pointer(index)
   output = pop_to_D #D = top of stack
   case index
     when '0'
-      output << "@3\n" #THIS
+      output << "@THIS\n"
     when '1'
-      output << "@4\n" #THAT
+      output << "@THAT\n"
   end
   output << "M=D\n" #RAM[THIS/THAT] = top of stack
 end
