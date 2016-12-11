@@ -451,6 +451,7 @@ def f_return
   #TODO: finish return
   #TODO: check init
   #TODO: check order
+  #TODO: change in push and pop from constants to @
 end
 
 def f_function(func_name, n_local_vars)
