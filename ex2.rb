@@ -365,7 +365,7 @@ def push_from_D
 end
 
 def translate_folder(folder_path)
-  output = ''
+  output = init
   all_files = Dir.entries(folder_path)
   for file in all_files
     if file.end_with? '.vm'
@@ -391,6 +391,7 @@ def init
   output << "D=A\n"
   output << "@SP\n"
   output << "M=D\n"
+  output << f_call('Sys.init', 0)
 end
 
 def label(func_name, file_name)
@@ -410,7 +411,8 @@ end
 
 def f_call(func_name, n_args)
   output = "//function call\n"
-  output << '@' + func_name + "_return_address\n"
+  output << '@' + func_name + '_return_address' + $label_counter.to_s + "\n"
+  $label_counter = $label_counter + 1
   output << "D=A\n"
   output << push_from_D # push return address
   output << "@LCL\n"
@@ -448,9 +450,48 @@ def f_return
   output << "D=M\n"
   output << "@R14\n"
   output << "M=D\n" # R14(frame) = LCL
-  #TODO: finish return
-  #TODO: check init
-  #TODO: check order
+  output << "@5\n"
+  output << "A=D-A\n" # A = frame - 5
+  output << "D=M\n" # D = *(frame - 5)
+  output << "@R15\n"
+  output << "M=D\n" # R15(RET) = *(frame - 5)
+  output << pop_to_D
+  output << "@ARG\n"
+  output << "A=M\n" # A = *ARG
+  output << "M=D\n" # *ARG = pop()
+  output << "@ARG\n"
+  output << "D=M\n"
+  output << "@SP\n"
+  output << "M=D+1\n" # SP = ARG + 1
+  output << "@R14\n"
+  output << "A=M-1\n"
+  output << "D=M\n" # D = *(frame - 1)
+  output << "@THAT\n"
+  output << "M=D\n" # THAT = *(frame - 1)
+  output << "@R14\n"
+  output << "D=M\n" # D = frame
+  output << "@2\n"
+  output << "A=D-A\n" # A = frame - 2
+  output << "D=M\n" # D = *(frame - 2)
+  output << "@THIS\n"
+  output << "M=D\n" # THIS = *(frame - 2)
+  output << "@R14\n"
+  output << "D=M\n" # D = frame
+  output << "@3\n"
+  output << "A=D-A\n" # A = frame - 3
+  output << "D=M\n" # D = *(frame - 3)
+  output << "@ARG\n"
+  output << "M=D\n" # ARG = *(frame - 3)
+  output << "@R14\n"
+  output << "D=M\n" # D = frame
+  output << "@4\n"
+  output << "A=D-A\n" # A = frame - 4
+  output << "D=M\n" # D = *(frame - 4)
+  output << "@LCL\n"
+  output << "M=D\n" # LCL = *(frame - 4)
+  output << "@R15\n" # RET
+  output << "A=M\n"
+  output << "0;JEQ\n" # goto RET
 end
 
 def f_function(func_name, n_local_vars)
@@ -459,7 +500,7 @@ def f_function(func_name, n_local_vars)
   output << '@' + n_local_vars.to_s + "\n"
   output << "D=A\n" # now D holds num of locals
   output << '(' + func_name + "_init)\n" # label for start init
-  output << '@' + func_name + "body\n"
+  output << '@' + func_name + "_body\n"
   output << "D;JEQ\n" # if counter = 0 - go to function body
   output << "@SP\n"
   output << "A=M\n"
