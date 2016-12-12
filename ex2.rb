@@ -97,6 +97,7 @@ def eq
   output << "M=-1\n"
   output << '(END' << $label_counter.to_s << ")\n"
   $label_counter = $label_counter + 1
+  output
 end
 
 def gt
@@ -117,6 +118,7 @@ def gt
   output << "M=-1\n"
   output << '(END' << $label_counter.to_s << ")\n"
   $label_counter = $label_counter + 1
+  output
 end
 
 def lt
@@ -137,6 +139,7 @@ def lt
   output << "M=-1\n"
   output << '(END' << $label_counter.to_s << ")\n"
   $label_counter = $label_counter + 1
+  output
 end
 
 def f_and
@@ -411,8 +414,9 @@ end
 
 def f_call(func_name, n_args)
   output = "//function call\n"
-  output << '@' + func_name + '_return_address' + $label_counter.to_s + "\n"
+  label = func_name + '_return_address' + $label_counter.to_s
   $label_counter = $label_counter + 1
+  output << '@' + label +  "\n"
   output << "D=A\n"
   output << push_from_D # push return address
   output << "@LCL\n"
@@ -428,9 +432,9 @@ def f_call(func_name, n_args)
   output << "D=M\n"
   output << push_from_D # push THAT
   output << '@' + n_args.to_s + "\n"
-  output << "D=A\n"
+  output << "D=A\n" # D = n-args
   output << "@SP\n"
-  output << "D=D-A\n" # D = SP - N
+  output << "D=M-D\n" # D = SP - N
   output << "@5\n"
   output << "D=D-A\n" # D = SP - N - 5
   output << "@ARG\n"
@@ -441,7 +445,7 @@ def f_call(func_name, n_args)
   output << "M=D\n" # LCL = SP
   output << '@' + func_name + "\n"
   output << "0;JEQ\n" # goto f
-  output << '(' + func_name + "_return_address)\n"
+  output << '(' + label + ")\n"
 end
 
 def f_return
