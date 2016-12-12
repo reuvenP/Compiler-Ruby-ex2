@@ -375,7 +375,8 @@ def translate_folder(folder_path)
       output << translate_file(folder_path + '\\' + file)
     end
   end
-  out_file = folder_path + '\\' + 'output.asm'
+  dir_name = folder_path.split('\\').last
+  out_file = folder_path + '\\' + dir_name + '.asm'
   File.open(out_file, 'w') do |f|
     f.puts(output)
   end
